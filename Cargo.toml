@@ -1,0 +1,22 @@
+[package]
+name = "cargo-index-transit"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "A package for common types for Cargo index interactions, and conversion between them."
+repository = "https://github.com/jonhoo/cargo-index-transit.git"
+
+[dependencies]
+hex = { version = "0.4.3", features = ["serde"] }
+semver = { version = "1.0.16", features = ["serde"] }
+serde = { version = "1.0.152", features = ["derive", "rc"] }
+
+[dev-dependencies]
+cargo = "0.68"
+crates-io = "0.35"
+crates-index = "0.19"
+tempfile = "3.3.0"
+flate2 = "1.0.25"
+tar = "0.4.38"
+toml_edit = { version = "0.19", features = ["serde"] }
+serde_json = "1"
