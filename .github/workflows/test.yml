@@ -31,6 +31,25 @@ jobs:
         with:
           command: test
           args: --locked --all-features --all-targets
+  proptest:
+    runs-on: ubuntu-latest
+    name: ubuntu / stable
+    needs: required
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          default: true
+      - name: cargo test --test proptest --locked -- --ignored
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --locked --test proptest -- --ignored
   minimal:
     runs-on: ubuntu-latest
     name: ubuntu / stable / minimal-versions
