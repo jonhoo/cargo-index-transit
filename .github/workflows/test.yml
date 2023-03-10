@@ -31,6 +31,7 @@ jobs:
         with:
           path: |
             target
+            /home/runner/.cargo
           key: ${{ matrix.toolchain }}-target
       # https://twitter.com/jonhoo/status/1571290371124260865
       - name: cargo test --locked
@@ -44,6 +45,7 @@ jobs:
         with:
           path: |
             target
+            /home/runner/.cargo
           key: ${{ steps.target-cache-restore.outputs.cache-primary-key }}
   proptest:
     runs-on: ubuntu-latest
@@ -64,6 +66,7 @@ jobs:
         with:
           path: |
             target
+            /home/runner/.cargo
           key: stable-target
       - name: cargo test --test proptest --locked -- --ignored
         uses: actions-rs/cargo@v1
