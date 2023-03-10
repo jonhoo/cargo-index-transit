@@ -22,6 +22,13 @@ tar = "0.4.38"
 toml_edit = { version = "0.19", features = ["serde"] }
 serde_json = "1"
 
+# for -Zminimal-versions
+openssl = "0.10.38"
+crossbeam-channel = "0.3.9"
+pkg-config = "0.3.16"
+hkdf = "0.12.3"
+p384 = "0.11.2"
+
 [patch.crates-io]
 # https://github.com/rust-lang/cargo/pull/11700
 # Remove once `cargo` for Rust 1.69 is released (2023-04-20)
