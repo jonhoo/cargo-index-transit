@@ -82,7 +82,7 @@ fn arb_deps() -> impl Strategy<Value = Vec<Dependency>> {
 
 proptest! {
     #[test]
-    #[ignore]
+    #[ignore = "proptests are slow and should be run explicitly"]
     fn roundtrip_one_dep(
         deps in arb_deps()
         ) {
