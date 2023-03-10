@@ -149,6 +149,7 @@ jobs:
         with:
           command: generate-lockfile
       - name: cargo llvm-cov
+        # TODO: should this also run proptests?
         run: cargo llvm-cov --locked --all-features --lcov --output-path lcov.info
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v3
