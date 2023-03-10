@@ -93,6 +93,7 @@ proptest! {
                 use std::fmt::Write;
                 // Modify the workspace before packaging
                 let mut ctoml = std::fs::read_to_string(p.join("Cargo.toml")).unwrap();
+                // TODO: split these by their DependencyKind (dep.1)
                 for dep in &deps {
                     write!(&mut ctoml, "\n{}", dep_to_toml(dep)).unwrap();
                 }
