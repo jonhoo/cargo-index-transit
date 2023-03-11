@@ -85,18 +85,18 @@ pub fn roundtrip(
             let m: cit::dotcrate::NormalizedManifest<String, String> =
                 toml_edit::de::from_str(&manifest).unwrap();
 
-            let p: cit::publish::CrateVersion<'_> = cit::publish::CrateVersion::new(
-                m.clone(),
-                (None, None),
-                "https://github.com/rust-lang/crates.io-index",
-            );
+            let repo = "https://github.com/rust-lang/crates.io-index";
+            let p: cit::publish::CrateVersion<'_> =
+                cit::publish::CrateVersion::new(m.clone(), (None, None), repo);
             let json = serde_json::to_string(&p).unwrap();
             let p2: crates_io::NewCrate = serde_json::from_str(&json).unwrap();
             let json = serde_json::to_string(&p2).unwrap();
             let p3: cit::publish::CrateVersion<'_> = serde_json::from_str(&json).unwrap();
             assert_eq!(p, p3);
 
+            let i0 = cit::index::Entry::from_manifest(m.clone(), repo, [0; 32]);
             let i = cit::index::Entry::from_publish(p.clone(), [0; 32]);
+            assert_eq!(i, i0);
             let json = serde_json::to_string(&i).unwrap();
             let _: cargo::sources::registry::RegistryPackage = serde_json::from_str(&json).unwrap();
             let i2: crates_index::Version = serde_json::from_str(&json).unwrap();

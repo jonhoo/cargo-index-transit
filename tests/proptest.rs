@@ -91,6 +91,9 @@ prop_compose! {
         let req = semver::VersionReq::parse(&version);
         let req = req.unwrap();
 
+        // TODO: cross-registry dependencies
+        // NOTE: crates-index doesn't support those, so may not work w/ roundtrip.
+
         dotcrate::Dependency {
             version: req,
             registry_index: None,
