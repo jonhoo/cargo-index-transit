@@ -20,7 +20,8 @@ where
     #[serde(rename = "deps")]
     pub dependencies: Arc<[RegistryDependency<Name, Req, Feature, Target>]>,
 
-    features: Arc<BTreeMap<Feature, Vec<Feature>>>,
+    pub features: Arc<BTreeMap<Feature, Vec<Feature>>>,
+
     /// This field contains features with new, extended syntax. Specifically,
     /// namespaced features (`dep:`) and weak dependencies (`pkg?/feat`).
     ///

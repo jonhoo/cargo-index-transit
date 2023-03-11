@@ -101,7 +101,11 @@ pub fn roundtrip(
             let _: cargo::sources::registry::RegistryPackage = serde_json::from_str(&json).unwrap();
             let i2: crates_index::Version = serde_json::from_str(&json).unwrap();
             let json = serde_json::to_string(&i2).unwrap();
-            let i3: cit::index::Entry<_, _, _, _, _, _> = serde_json::from_str(&json).unwrap();
+            let mut i3: cit::index::Entry<_, _, _, _, _, _> = serde_json::from_str(&json).unwrap();
+            // crates_index::Version doesn't preserve schema version
+            if i.schema_version.is_some() {
+                i3.schema_version = i.schema_version;
+            }
             assert_eq!(i, i3);
 
             assert_eq!(i.name, "roundtrip");
