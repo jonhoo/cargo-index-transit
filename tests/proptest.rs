@@ -229,6 +229,10 @@ proptest! {
         (deps, features) in arb_spec(),
         ) {
 
+        // TODO:
+        // fix features to ensure that there is always a feature for every optional dep:
+        // https://github.com/rust-lang/cargo/blob/7b2fabf785755458ca02a00140060d8ba786a3ff/src/cargo/core/summary.rs#L339-L349
+
         roundtrip(
             |p| {
                 use std::fmt::Write;
