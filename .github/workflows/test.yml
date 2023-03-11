@@ -54,11 +54,7 @@ jobs:
         with:
           submodules: true
       - name: Install stable
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          default: true
+        uses: dtolnay/rust-toolchain@stable
       - name: Restore cached target/
         uses: actions/cache/restore@v3
         with:
