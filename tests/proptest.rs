@@ -13,6 +13,7 @@ struct Dependency(String, DependencyKind, dotcrate::Dependency<String>);
 enum FeatureSpec {
     Feature(String),
     Dep(String),
+    Strong(String, String),
     Weak(String, String),
 }
 
@@ -35,17 +36,26 @@ fn arb_feature_name() -> impl Strategy<Value = String> + Copy {
     "[a-z][a-z0-9_-]?"
 }
 
-fn arb_maybe_feature_name() -> impl Strategy<Value = Option<String>> {
-    prop_oneof![Just(None), arb_feature_name().prop_map(|s| Some(s))]
+fn arb_maybe_dep_feature() -> impl Strategy<Value = Option<(String, bool)>> {
+    prop_oneof![
+        Just(None),
+        (arb_feature_name(), any::<bool>()).prop_map(|s| Some(s))
+    ]
 }
 
 fn arb_dep_feature(deps: Arc<[Dependency]>) -> impl Strategy<Value = FeatureSpec> {
     let ndeps = deps.len();
     // Or it can reference a dependency or a feature of a dependency
     assert_ne!(ndeps, 0);
-    (0..ndeps, arb_maybe_feature_name()).prop_map(move |(i, ft)| match ft {
+    (0..ndeps, arb_maybe_dep_feature()).prop_map(move |(i, ft)| match ft {
         None => FeatureSpec::Dep(deps[i].0.clone()),
-        Some(ft) => FeatureSpec::Weak(deps[i].0.clone(), ft),
+        Some((ft, weak)) => {
+            if weak {
+                FeatureSpec::Weak(deps[i].0.clone(), ft)
+            } else {
+                FeatureSpec::Strong(deps[i].0.clone(), ft)
+            }
+        }
     })
 }
 
@@ -261,6 +271,7 @@ proptest! {
                         match &fdeps[fdi] {
                             FeatureSpec::Feature(f) => write!(&mut ctoml, r#""{f}""#).unwrap(),
                             FeatureSpec::Dep(f) => write!(&mut ctoml, r#""dep:{f}""#).unwrap(),
+                            FeatureSpec::Strong(d, f) => write!(&mut ctoml, r#""{d}/{f}""#).unwrap(),
                             FeatureSpec::Weak(d, f) => write!(&mut ctoml, r#""{d}?/{f}""#).unwrap(),
 
                         }
@@ -296,7 +307,7 @@ proptest! {
                 assert_eq!(num_found, deps.len());
 
                 for (fname, inspecs) in &features {
-                    let features = if inspecs.iter().all(|spec| matches!(spec, FeatureSpec::Feature(_))) {
+                    let features = if inspecs.iter().all(|spec| matches!(spec, FeatureSpec::Feature(_) | FeatureSpec::Strong(_, _))) {
                         &*index.features
                     } else {
                         index.features2.as_deref().expect("feature should be there, so map shouldn't be empty")
@@ -309,6 +320,11 @@ proptest! {
                             }
                             FeatureSpec::Dep(d) => {
                                 assert!(outspecs.iter().any(|spec| spec.strip_prefix("dep:") == Some(d)));
+                            }
+                            FeatureSpec::Strong(d, f) => {
+                                assert!(outspecs.iter().any(|spec| {
+                                    spec.split_once("/") == Some((d, f))
+                                }));
                             }
                             FeatureSpec::Weak(d, f) => {
                                 assert!(outspecs.iter().any(|spec| {
