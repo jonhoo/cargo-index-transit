@@ -61,8 +61,11 @@ fn dep_to_toml(dep: &Dependency) -> String {
     let mut s = format!(r#""{}" = {{"#, dep.0);
     write!(&mut s, r#"version = "{}""#, dep.2.version).unwrap();
 
-    if let Some(b) = &dep.2.optional {
-        write!(&mut s, r#", optional = {b}"#).unwrap();
+    // optional is only permitted for normal dependencies
+    if matches!(dep.1, DependencyKind::Normal) {
+        if let Some(b) = &dep.2.optional {
+            write!(&mut s, r#", optional = {b}"#).unwrap();
+        }
     }
     if let Some(b) = &dep.2.default_features {
         write!(&mut s, r#", default-features = {b}"#).unwrap();
@@ -93,8 +96,16 @@ proptest! {
                 use std::fmt::Write;
                 // Modify the workspace before packaging
                 let mut ctoml = std::fs::read_to_string(p.join("Cargo.toml")).unwrap();
-                // TODO: split these by their DependencyKind (dep.1)
-                for dep in &deps {
+                // There's already a [dependencies] at the bottom of a fresh Cargo.toml
+                for dep in deps.iter().filter(|&Dependency(_, kind, _)| matches!(kind, DependencyKind::Normal)) {
+                    write!(&mut ctoml, "\n{}", dep_to_toml(dep)).unwrap();
+                }
+                write!(&mut ctoml, "\n[dev-dependencies]").unwrap();
+                for dep in deps.iter().filter(|&Dependency(_, kind, _)| matches!(kind, DependencyKind::Dev)) {
+                    write!(&mut ctoml, "\n{}", dep_to_toml(dep)).unwrap();
+                }
+                write!(&mut ctoml, "\n[build-dependencies]").unwrap();
+                for dep in deps.iter().filter(|&Dependency(_, kind, _)| matches!(kind, DependencyKind::Build)) {
                     write!(&mut ctoml, "\n{}", dep_to_toml(dep)).unwrap();
                 }
                 std::fs::write(p.join("Cargo.toml"), ctoml).unwrap();
@@ -103,12 +114,16 @@ proptest! {
                 // Check the various transit structs
                 let mut num_found = 0;
                 'check: for final_dep in index.dependencies.iter() {
-                    for input_dep in &deps {
-                        if input_dep.0 == final_dep.name {
-                            let id = &input_dep.2;
+                    for Dependency(iname, ikind, id) in &deps {
+                        if iname == &*final_dep.name {
                             let fd = &final_dep;
+                            assert_eq!(Some(ikind), fd.kind.as_ref());
                             assert_eq!(id.version, fd.requirements);
-                            assert_eq!(id.optional.unwrap_or(false), fd.optional);
+                            if matches!(ikind, DependencyKind::Normal) {
+                                assert_eq!(id.optional.unwrap_or(false), fd.optional);
+                            } else {
+                                assert!(!fd.optional);
+                            }
                             assert_eq!(id.default_features.unwrap_or(true), fd.default_features);
                             assert_eq!(id.package.as_deref(), fd.package.as_ref().map(|s| &***s));
                             num_found += 1;
