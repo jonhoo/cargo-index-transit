@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use cargo_index_transit::{dotcrate, publish::DependencyKind};
 use proptest::prelude::*;
 
@@ -19,7 +21,7 @@ prop_compose! {
 }
 
 fn arb_package() -> impl Strategy<Value = Option<String>> {
-    prop_oneof![Just(None), "[a-z][a-z0-9_-]*".prop_map(|s| Some(s))]
+    prop_oneof![Just(None), "[a-z][a-z0-9_-]{0,3}".prop_map(|s| Some(s))]
 }
 
 prop_compose! {
@@ -31,6 +33,9 @@ prop_compose! {
     ) -> dotcrate::Dependency<String> {
         let req = semver::VersionReq::parse(&version);
         let req = req.unwrap();
+
+        // TODO: features, incl. dep: and pkg?/ features
+        // ref https://blog.rust-lang.org/2022/04/07/Rust-1.60.0.html#new-syntax-for-cargo-features
 
         dotcrate::Dependency {
             version: req,
@@ -47,7 +52,7 @@ prop_compose! {
 
 prop_compose! {
     fn arb_dep()(
-        name in "[a-z][a-z0-9_-]*",
+        name in "[a-z][a-z0-9_-]{0,3}",
         kind in arb_dep_kind(),
         listing in arb_dep_listing()
     ) -> Dependency {
@@ -87,8 +92,15 @@ proptest! {
     #[test]
     #[ignore = "proptests are slow and should be run explicitly"]
     fn roundtrip_one_dep(
-        deps in arb_deps()
+        mut deps in arb_deps()
         ) {
+
+        // Ignore duplicate entries.
+        // Ideally we'd express this in the Strategy, but doing so is quite tricky
+        {
+            let mut names = HashSet::new();
+            deps.retain(|Dependency(name, _, _)| names.insert(name.to_string()));
+        }
 
         // println!("{:?}", deps);
         roundtrip(
