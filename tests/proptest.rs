@@ -232,7 +232,7 @@ prop_compose! {
 proptest! {
     // For the lib.rs/main.rs warning, see https://github.com/proptest-rs/proptest/issues/233
     // 512 here was determined based on CI time. 1024 took about 5m without coverage and 15m with.
-    #![proptest_config(ProptestConfig::with_cases(512))]
+    #![proptest_config(ProptestConfig::with_cases(1024))]
     #[test]
     #[ignore = "proptests are slow and should be run explicitly"]
     fn merry_go_round(

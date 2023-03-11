@@ -151,9 +151,9 @@ jobs:
       - name: cargo llvm-cov clean
         run: cargo llvm-cov clean --workspace
       - name: cargo llvm-cov
-        run: cargo llvm-cov --locked --all-features --no-report
+        run: cargo llvm-cov --locked --all-features --no-report --release
       - name: cargo llvm-cov proptest
-        run: cargo llvm-cov --locked --all-features --no-report --test proptest -- --ignored
+        run: cargo llvm-cov --locked --all-features --no-report --release --test proptest -- --ignored
       - name: Save cached target/
         id: target-cache-save
         uses: actions/cache/save@v3
