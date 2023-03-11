@@ -236,12 +236,29 @@ proptest! {
     #[test]
     #[ignore = "proptests are slow and should be run explicitly"]
     fn merry_go_round(
-        (deps, features) in arb_spec(),
+        (deps, mut features) in arb_spec(),
         ) {
 
-        // TODO:
-        // fix features to ensure that there is always a feature for every optional dep:
+        // Cargo requires that there is always a feature for every optional dep:
         // https://github.com/rust-lang/cargo/blob/7b2fabf785755458ca02a00140060d8ba786a3ff/src/cargo/core/summary.rs#L339-L349
+        // Make that be the case.
+        let unmentioned_optional = deps.iter()
+            .filter(|dep| matches!(dep.1, DependencyKind::Normal) && dep.2.optional == Some(true))
+            .filter(|Dependency(dep, _, _)| !features.iter().flat_map(|(_, specs)| specs).any(|spec| {
+                match spec {
+                    // NOTE: *technically* this may not count for cargo if the same feature uses
+                    // dep: elsewhere, since then the plain feature specifiers are considered as
+                    // being in a different namespace. But it seems to be working okay for now.
+                    FeatureSpec::Feature(f) => f == dep,
+                    FeatureSpec::Dep(d) => d == dep,
+                    FeatureSpec::Weak(d, _) => d == dep,
+                    FeatureSpec::Strong(d, _) => d == dep,
+                }
+            }));
+        let add: Vec<_> = unmentioned_optional.map(|Dependency(dep, _, _)| FeatureSpec::Dep(dep.clone())).collect();
+        if !add.is_empty() {
+            features.push(("fix-optional".into(), add));
+        }
 
         roundtrip(
             |p| {
