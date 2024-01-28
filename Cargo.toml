@@ -1,6 +1,6 @@
 [package]
 name = "cargo-index-transit"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "A package for common types for Cargo index interactions, and conversion between them."
