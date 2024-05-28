@@ -414,9 +414,9 @@ dependencies = [
 
 [[package]]
 name = "crates-index"
-version = "2.5.0"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "399dc50bc35c6d25c79b5aa1edb8f65542738d398bc09165c1bc4d283a954c11"
+checksum = "8cb2b4e2add8f7f0b01ca0a162c8dfaa42d4f9e42f787f2ab855a98bbcdbe017"
 dependencies = [
  "hex 0.4.3",
  "home",
@@ -1000,9 +1000,9 @@ dependencies = [
 
 [[package]]
 name = "http"
-version = "0.2.11"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8947b1a6fad4393052c7ba1f4cd97bed3e953a95c79c92ad9b051a04611d9fbb"
+checksum = "21b9ddb458710bc376481b842f5da65cdf31522de232c1ca8146abce2a358258"
 dependencies = [
  "bytes",
  "fnv",

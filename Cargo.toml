@@ -15,7 +15,7 @@ serde = { version = "1.0.152", features = ["derive", "rc"] }
 # for rust 1.x, cargo version is 0.(x+1)
 cargo = "0.70"
 crates-io = "0.35"
-crates-index = "2.5"
+crates-index = "3.0"
 tempfile = "3.3.0"
 flate2 = "1.0.25"
 tar = "0.4.38"
