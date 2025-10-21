@@ -25,7 +25,7 @@ proptest = "1.1.0"
 
 # for -Zminimal-versions
 openssl = "0.10.38"
-crossbeam-channel = "0.3.9"
+crossbeam-channel = "0.5.15"
 pkg-config = "0.3.16"
 hkdf = "0.12.3"
 p384 = "0.11.2"
