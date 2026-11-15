@@ -2,6 +2,7 @@
 name = "cargo-index-transit"
 version = "0.1.1"
 edition = "2021"
+rust-version = "1.71.0"
 license = "MIT OR Apache-2.0"
 description = "A package for common types for Cargo index interactions, and conversion between them."
 repository = "https://github.com/jonhoo/cargo-index-transit.git"
